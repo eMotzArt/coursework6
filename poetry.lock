@@ -38,6 +38,39 @@ python-versions = ">=3.7"
 Django = ">=3.2"
 
 [[package]]
+name = "djangorestframework"
+version = "3.14.0"
+description = "Web APIs for Django, made easy."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+django = ">=3.0"
+pytz = "*"
+
+[[package]]
+name = "djangorestframework-simplejwt"
+version = "5.2.2"
+description = "A minimal JSON Web Token authentication plugin for Django REST Framework"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+django = "*"
+djangorestframework = "*"
+pyjwt = ">=1.7.1,<3"
+
+[package.extras]
+crypto = ["cryptography (>=3.3.1)"]
+dev = ["pytest-watch", "wheel", "twine", "ipython", "cryptography", "pytest-cov", "pytest-django", "pytest-xdist", "pytest", "tox", "flake8", "pep8", "isort", "Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)", "python-jose (==3.3.0)"]
+doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)"]
+lint = ["flake8", "pep8", "isort"]
+python-jose = ["python-jose (==3.3.0)"]
+test = ["cryptography", "pytest-cov", "pytest-django", "pytest-xdist", "pytest", "tox"]
+
+[[package]]
 name = "pillow"
 version = "9.3.0"
 description = "Python Imaging Library (Fork)"
@@ -58,6 +91,20 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pyjwt"
+version = "2.6.0"
+description = "JSON Web Token implementation in Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+crypto = ["cryptography (>=3.4.0)"]
+dev = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.4.0)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "pre-commit"]
+docs = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
+tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
+
+[[package]]
 name = "python-dotenv"
 version = "0.21.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -67,6 +114,14 @@ python-versions = ">=3.7"
 
 [package.extras]
 cli = ["click (>=5.0)"]
+
+[[package]]
+name = "pytz"
+version = "2022.7"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "sqlparse"
@@ -87,14 +142,18 @@ python-versions = ">=2"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c0695202b028d702b0e728f5cc37d5230fa1c0550f5b56a8ad31b0e9865b060f"
+content-hash = "7e898845cd6edbd780ca96c1de3e889481c76190175efc55b68537c45e1ed7a7"
 
 [metadata.files]
 asgiref = []
 django = []
 django-cors-headers = []
+djangorestframework = []
+djangorestframework-simplejwt = []
 pillow = []
 psycopg2-binary = []
+pyjwt = []
 python-dotenv = []
+pytz = []
 sqlparse = []
 tzdata = []
