@@ -30,7 +30,9 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('refresh/', TokenRefreshView.as_view()),
 
-    # path('api/token/', views.TokenObtainPairView.as_view()),
-    # path('abro/', include('users.urls')),
+    #ads
+    path('api/', include('ads.urls')),
+
+    #redoc
     path('redoc/', include('redoc.urls')),
 ]

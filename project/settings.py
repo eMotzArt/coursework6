@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     'redoc',
     'users',
+    'ads',
 ]
 
 MIDDLEWARE = [
@@ -198,5 +199,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+   'AUTH_HEADER_TYPES': ('JWT', 'Bearer'),
 }
