@@ -1,7 +1,5 @@
 from rest_framework import serializers
 from ads.models import Ad, Comment
-from users.models import User
-from users.serializers import CurrentUserSerializer
 
 
 class AdvertisementsListSerializer(serializers.ModelSerializer):
@@ -27,10 +25,6 @@ class AdvertisementsRetrieveSerializer(serializers.ModelSerializer):
     def get_author_pk(self, obj):
         return obj.author.pk
 
-# class AdvertisementsCreateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Ad
-#         # fi
 
 class CommentsListSerializer(serializers.ModelSerializer):
     author_first_name = serializers.SerializerMethodField()
@@ -69,3 +63,7 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
         return obj.author.image or None
 
 
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['text']
