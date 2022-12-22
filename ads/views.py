@@ -1,5 +1,7 @@
+from rest_framework import viewsets
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from ads.models import Ad, Comment
 from ads.serializers import AdvertisementsListSerializer, AdvertisementsRetrieveSerializer, CommentsListSerializer, \
@@ -47,3 +49,25 @@ class CommentCreateView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
+
+
+class CommentsViewSet(viewsets.ViewSet):
+    def list(self, request, *args, **kwargs):
+        queryset = Comment.objects.all().filter(ad=kwargs['pk'])
+        serializer = CommentsListSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        request.data['ad_id'] = kwargs['pk']
+        request.data['author_id'] = request.user.id
+        request.data['author_first_name'] = request.user.first_name
+        request.data['author_last_name'] = request.user.last_name
+        request.data['image'] = request.user.image
+
+
+
+        serializer = CommentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
