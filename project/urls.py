@@ -15,10 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
 from djoser.views import UserViewSet
 from rest_framework.routers import SimpleRouter
-from rest_framework_simplejwt import views
 from rest_framework_simplejwt.views import TokenRefreshView
 
 users_router = SimpleRouter()
@@ -26,6 +24,8 @@ users_router.register("users", UserViewSet, basename="users")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    #users
     path('api/', include(users_router.urls)),
     path('api/', include('users.urls')),
     path('refresh/', TokenRefreshView.as_view()),
@@ -33,10 +33,4 @@ urlpatterns = [
     # path('api/token/', views.TokenObtainPairView.as_view()),
     # path('abro/', include('users.urls')),
     path('redoc/', include('redoc.urls')),
-    # path('api/token/', views.obtain_auth_token),
-    path('auth/', include('djoser.urls')),
-    path('api2/', include('djoser.urls.jwt')),
-    path('api/token2/', include('djoser.urls.authtoken')),
-    # path('api/token/', RedirectView.as_view(url='api/token/token/login/')),
 ]
-x=1
