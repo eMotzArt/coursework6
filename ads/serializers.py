@@ -29,11 +29,11 @@ class AdvertisementsRetrieveSerializer(serializers.ModelSerializer):
 class CommentsListSerializer(serializers.ModelSerializer):
     author_first_name = serializers.SerializerMethodField()
     author_last_name = serializers.SerializerMethodField()
-    # author_image = serializers.SerializerMethodField()
+    author_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id']#, 'author_image']
+        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id', 'author_image']
 
     def get_author_first_name(self, obj):
         return obj.author.first_name
@@ -41,8 +41,8 @@ class CommentsListSerializer(serializers.ModelSerializer):
     def get_author_last_name(self, obj):
         return obj.author.last_name
 
-    # def get_author_image(self, obj):
-    #     return obj.author.image or None
+    def get_author_image(self, obj):
+        return obj.author.image.url or None
 
 class CommentRetrieveSerializer(serializers.ModelSerializer):
     author_first_name = serializers.SerializerMethodField()
@@ -64,21 +64,32 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
-    author_first_name = serializers.SerializerMethodField()
-    author_last_name = serializers.SerializerMethodField()
-    # author_image = serializers.SerializerMethodField()
-    ad_id = serializers.IntegerField()
+    author_first_name = serializers.CharField(read_only=True, required=False, max_length=150)
+    author_last_name = serializers.CharField(read_only=True, required=False, max_length=150)
+    # author_image = serializers.ImageField()
+    # ad_id = serializers.SerializerMethodField()
     author_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Comment
         fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id']#, 'author_image']
 
-    def get_author_first_name(self, obj):
-        return self.initial_data['author_first_name']
+    def create(self, validated_data):
+        validated_data['ad_id'] = self.initial_data['current_ad'].id
+        validated_data['author_id'] = self.initial_data['current_ad'].author_id
+        validated_data['author_first_name'] = self.initial_data['current_ad'].author.first_name
+        validated_data['author_last_name'] = self.initial_data['current_ad'].author.last_name
+        return super().create(validated_data)
 
-    def get_author_last_name(self, obj):
-        return self.initial_data['author_last_name']
+    # def get_ad_id(self, obj):
+    #     x=1
+    #     return 1
+
+    # def get_author_first_name(self, obj):
+        # return self.initial_data['author_first_name']
+    #
+    # def get_author_last_name(self, obj):
+    #     return self.initial_data['author_last_name']
 
     # def get_author_image(self, obj):
     #     return self.initial_data['image'].url or None

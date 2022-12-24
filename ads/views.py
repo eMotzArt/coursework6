@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from ads.models import Ad, Comment
 from ads.serializers import AdvertisementsListSerializer, AdvertisementsRetrieveSerializer, CommentsListSerializer, \
     CommentRetrieveSerializer, CommentCreateSerializer
+
+
 # Create your views here.
 
 class AdvertisementsListView(ListAPIView):
@@ -15,6 +17,7 @@ class AdvertisementsListView(ListAPIView):
 class AdvertisementRetrieveView(RetrieveAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdvertisementsRetrieveSerializer
+
 
 class AdvertisementsUserOwnerListView(ListAPIView):
     queryset = Ad.objects.all()
@@ -52,22 +55,46 @@ class CommentCreateView(CreateAPIView):
 
 
 class CommentsViewSet(viewsets.ViewSet):
+    # queryset = Comment.objects.all()
+    # serializer_class = CommentsListSerializer
+
     def list(self, request, *args, **kwargs):
-        queryset = Comment.objects.all().filter(ad=kwargs['pk'])
+
+        queryset = Comment.objects.filter(ad_id=kwargs['pk'])
         serializer = CommentsListSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        request.data['ad_id'] = kwargs['pk']
-        request.data['author_id'] = request.user.id
-        request.data['author_first_name'] = request.user.first_name
-        request.data['author_last_name'] = request.user.last_name
-        request.data['image'] = request.user.image
-
-
+        ad = Ad.objects.filter(id=kwargs['pk']).first()
+        request.data['current_ad'] = ad
+        request.data['ad_id'] = ad.id
 
         serializer = CommentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(serializer.data)
+        x=1
+        pass
+#
+#
+# class CommentsViewSet(viewsets.ViewSet):
+#     def list(self, request, *args, **kwargs):
+#         queryset = Comment.objects.all().filter(ad=kwargs['pk'])
+#         serializer = CommentsListSerializer(queryset, many=True)
+#         return Response(serializer.data)
+#
+#     def create(self, request, *args, **kwargs):
+#         request.data['ad_id'] = kwargs['pk']
+#         request.data['author_id'] = request.user.id
+#         request.data['author_first_name'] = request.user.first_name
+#         request.data['author_last_name'] = request.user.last_name
+#         request.data['image'] = request.user.image
+#
+#
+#
+#         serializer = CommentCreateSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#
+#         return Response(serializer.data)
