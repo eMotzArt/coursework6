@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 import os
 import project.env
@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    # libs
     'rest_framework',
-    'rest_framework.authtoken',
+    'corsheaders',
     'rest_framework_simplejwt',
     'djoser',
-
+    # project apps
     'redoc',
     'users',
     'ads',
@@ -145,64 +145,38 @@ AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": 4,
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # "rest_framework.authentication.TokenAuthentication",
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
-
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ]
 }
-#
-# REST_FRAMEWORK = {
-#    'DEFAULT_AUTHENTICATION_CLASSES': (
-#        'rest_framework.authentication.TokenAuthentication',
-#    ),
-#    'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAdminUser'
-#    ),
-# }
 
 DJOSER = {
     'SERIALIZERS': {
-        # 'user': 'users.serializers.UserSerializer',
-        # 'current_user': 'users.serializers.MeUserSerializer',
-        # 'user_create': 'users.serializers.UserRegistrationSerializer'
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer',
     },
     'LOGIN_FIELD': 'email',
 
-    # 'PASSWORD_RESET_CONFIRM_URL': 'users/reset_password_confirm/{uid}/{token}',
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-
-    # 'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    # 'SEND_ACTIVATION_EMAIL': True,
 }
 
 DOMAIN = '127.0.0.1:3000'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# EMAIL_HOST = "smtp.yandex.ru"
-# EMAIL_PORT = 465
-# EMAIL_USE_TLS = False
-# EMAIL_USE_SSL = True
-# EMAIL_HOST_USER = "test-for-cw-sender@yandex.ru"
-# EMAIL_HOST_PASSWORD = "13579TfCWS"
-# EMAIL_HOST_PASSWORD = 'eywvzbdpxqclfiel'
-# DEFAULT_FROM_EMAIL = "test-for-cw-sender@yandex.ru"
-
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = bool(os.getenv('EMAIL_USE_TLS'))
 EMAIL_USE_SSL = bool(os.getenv('EMAIL_USE_SSL'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = "13579TfCWS"
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-
-
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT', 'Bearer'),
+    'AUTH_HEADER_TYPES': ('Bearer'),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
