@@ -1,3 +1,4 @@
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -5,7 +6,7 @@ from django.db import models
 from users.manager import UserManager
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
     objects = UserManager()
 
     #roles
@@ -17,11 +18,13 @@ class User(AbstractUser):
     ]
 
     #fields
+    first_name = models.CharField(max_length=64, blank=True)
+    last_name = models.CharField(max_length=64, blank=True)
     phone = models.CharField(max_length=14, unique=True)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLES, default=USER)
     image = models.ImageField()
-    username = models.CharField(null=True, blank=True, max_length=150)
+    is_active = models.BooleanField(default=True)
 
 
     USERNAME_FIELD = 'email'
@@ -50,9 +53,9 @@ class User(AbstractUser):
         return self.is_admin
 
     class Meta:
-        ordering = ['username']
+        ordering = ['email']
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
     def __str__(self):
-        return f"{self.pk}: {self.username} ({self.first_name} {self.last_name})"
+        return f"{self.pk}: ({self.first_name} {self.last_name})"
