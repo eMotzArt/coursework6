@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ads.models import Ad, Comment
+from users.models import User
 
 
 class AdvertisementsListSerializer(serializers.ModelSerializer):
@@ -7,89 +8,80 @@ class AdvertisementsListSerializer(serializers.ModelSerializer):
         model = Ad
         fields = ['pk', 'image', 'title', 'price', 'description']
 
+
+
 class AdvertisementsRetrieveSerializer(serializers.ModelSerializer):
-    author_first_name = serializers.SerializerMethodField()
-    author_last_name = serializers.SerializerMethodField()
-    author_pk = serializers.SerializerMethodField()
+    phone = serializers.CharField(source='author.phone')
+    author_first_name = serializers.CharField(source='author.first_name')
+    author_last_name = serializers.CharField(source='author.last_name')
+    author_id = serializers.IntegerField(source='author.id')
 
     class Meta:
         model = Ad
-        fields = ['pk', 'image', 'title', 'price', 'description', 'author_first_name', 'author_last_name', 'author_pk']
-
-    def get_author_first_name(self, obj):
-        return obj.author.first_name
-
-    def get_author_last_name(self, obj):
-        return obj.author.last_name
-
-    def get_author_pk(self, obj):
-        return obj.author.pk
+        fields = ['pk', 'image', 'title', 'price', 'phone', 'description', 'author_first_name', 'author_last_name', 'author_id']
 
 
 class CommentsListSerializer(serializers.ModelSerializer):
-    author_first_name = serializers.SerializerMethodField()
-    author_last_name = serializers.SerializerMethodField()
-    author_image = serializers.SerializerMethodField()
+    author_first_name = serializers.CharField(source='author.first_name')
+    author_last_name = serializers.CharField(source='author.last_name')
+    author_image = serializers.ImageField(source='author.image')
 
     class Meta:
         model = Comment
         fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id', 'author_image']
 
-    def get_author_first_name(self, obj):
-        return obj.author.first_name
-
-    def get_author_last_name(self, obj):
-        return obj.author.last_name
-
-    def get_author_image(self, obj):
-        return obj.author.image.url or None
 
 class CommentRetrieveSerializer(serializers.ModelSerializer):
-    author_first_name = serializers.SerializerMethodField()
-    author_last_name = serializers.SerializerMethodField()
-    # author_image = serializers.SerializerMethodField()
+    author_first_name = serializers.CharField(source='author.first_name')
+    author_last_name = serializers.CharField(source='author.last_name')
+    author_image = serializers.ImageField(source='author.image')
 
     class Meta:
         model = Comment
-        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id']#, 'author_image']
+        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id', 'author_image']
 
-    def get_author_first_name(self, obj):
-        return obj.author.first_name
 
-    def get_author_last_name(self, obj):
-        return obj.author.last_name
+class AdvertisementCreateSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source='author.phone', read_only=True)
+    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
+    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
+    author_id = serializers.IntegerField()
 
-    # def get_author_image(self, obj):
-    #     return obj.author.image or None
+    class Meta:
+        model = Ad
+        fields = ['pk', 'image', 'title', 'price', 'phone', 'description', 'author_first_name', 'author_last_name', 'author_id']
+
+class AdvertisementUpdateSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source='author.phone', read_only=True)
+    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
+    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
+    author_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Ad
+        fields = ['pk', 'image', 'title', 'price', 'phone', 'description', 'author_first_name', 'author_last_name',
+                  'author_id']
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
-    author_first_name = serializers.CharField(read_only=True, required=False, max_length=150)
-    author_last_name = serializers.CharField(read_only=True, required=False, max_length=150)
-    # author_image = serializers.ImageField()
-    # ad_id = serializers.SerializerMethodField()
-    author_id = serializers.IntegerField(required=False)
+    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
+    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
+    author_image = serializers.ImageField(source='author.image', read_only=True)
+    author_id = serializers.IntegerField()
+    ad_id = serializers.IntegerField()
 
     class Meta:
         model = Comment
-        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id']#, 'author_image']
+        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id', 'author_image']
 
-    def create(self, validated_data):
-        validated_data['ad_id'] = self.initial_data['current_ad'].id
-        validated_data['author_id'] = self.initial_data['current_ad'].author_id
-        validated_data['author_first_name'] = self.initial_data['current_ad'].author.first_name
-        validated_data['author_last_name'] = self.initial_data['current_ad'].author.last_name
-        return super().create(validated_data)
+class CommentUpdateSerializer(serializers.ModelSerializer):
+    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
+    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
+    author_image = serializers.ImageField(source='author.image', read_only=True)
+    author_id = serializers.IntegerField(read_only=True)
+    ad_id = serializers.IntegerField(read_only=True)
 
-    # def get_ad_id(self, obj):
-    #     x=1
-    #     return 1
+    class Meta:
+        model = Comment
+        fields = ['pk', 'text', 'author_id', 'created_at', 'author_first_name', 'author_last_name', 'ad_id', 'author_image']
 
-    # def get_author_first_name(self, obj):
-        # return self.initial_data['author_first_name']
-    #
-    # def get_author_last_name(self, obj):
-    #     return self.initial_data['author_last_name']
-
-    # def get_author_image(self, obj):
-    #     return self.initial_data['image'].url or None

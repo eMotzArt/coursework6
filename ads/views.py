@@ -1,100 +1,88 @@
-from rest_framework import viewsets
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+from rest_framework import permissions, pagination, viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from ads.models import Ad, Comment
+from ads.models import Comment
+from ads.permissions import AdOwnerPermission
 from ads.serializers import AdvertisementsListSerializer, AdvertisementsRetrieveSerializer, CommentsListSerializer, \
-    CommentRetrieveSerializer, CommentCreateSerializer
-
+    CommentCreateSerializer, Ad, AdvertisementCreateSerializer, AdvertisementUpdateSerializer, \
+    CommentUpdateSerializer
 
 # Create your views here.
 
-class AdvertisementsListView(ListAPIView):
-    queryset = Ad.objects.all()
-    serializer_class = AdvertisementsListSerializer
+class AdvertisementViewSet(viewsets.ModelViewSet):
+    queryset = Ad.objects.select_related('author').all()
+    serializer_classes = {
+        'list': AdvertisementsListSerializer,
+        'retrieve': AdvertisementsRetrieveSerializer,
+        'create': AdvertisementCreateSerializer,
+        'partial_update': AdvertisementUpdateSerializer,
+    }
 
-class AdvertisementRetrieveView(RetrieveAPIView):
-    queryset = Ad.objects.all()
-    serializer_class = AdvertisementsRetrieveSerializer
+    permission_classes_by_action = {
+        'list': [AllowAny],
+        'retrieve': [IsAuthenticated],
+        'create': [IsAuthenticated],
+        'partial_update': [AdOwnerPermission],
+        'destroy': [AdOwnerPermission],
+    }
+
+    def get_permissions(self):
+        return [permission() for permission in self.permission_classes_by_action[self.action]]
+
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action)
+
+    def create(self, request, *args, **kwargs):
+        request.data['author_id'] = int(self.request.user.id)
+        return super().create(request, *args, **kwargs)
 
 
 class AdvertisementsUserOwnerListView(ListAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdvertisementsListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         self.queryset = self.queryset.filter(author_id=request.user.id)
         return super().get(request, *args, **kwargs)
 
 
-class CommentsListView(ListAPIView):
+class CommentPagination(pagination.PageNumberPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        self.page_size = len(queryset) or self.page_size
+        return super().paginate_queryset(queryset, request, view)
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentsListSerializer
+    pagination_class = CommentPagination
 
-    def get(self, request, *args, **kwargs):
-        self.queryset = self.queryset.filter(ad=kwargs['pk'])
-        return super().get(request, *args, **kwargs)
+    default_serializer_class = CommentsListSerializer
+    serializer_classes = {
+        'create': CommentCreateSerializer,
+        'partial_update': CommentUpdateSerializer,
+    }
 
-class CommentRetrieveView(RetrieveAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentRetrieveSerializer
-    lookup_field = 'id'
-    def get(self, request, *args, **kwargs):
-        self.queryset = self.queryset.filter(ad_id=kwargs['ad_pk'], id=kwargs['id'])
-        return super().get(request, *args, **kwargs)
+    permission_classes_by_action = {
+        'list': [IsAuthenticated],
+        'retrieve': [IsAuthenticated],
+        'create': [IsAuthenticated],
+        'partial_update': [AdOwnerPermission],
+        'update': [AdOwnerPermission],
+        'destroy': [AdOwnerPermission],
+    }
 
-class CommentCreateView(CreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentCreateSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        return [permission() for permission in self.permission_classes_by_action[self.action]]
 
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action, self.default_serializer_class)
 
-
-class CommentsViewSet(viewsets.ViewSet):
-    # queryset = Comment.objects.all()
-    # serializer_class = CommentsListSerializer
-
-    def list(self, request, *args, **kwargs):
-
-        queryset = Comment.objects.filter(ad_id=kwargs['pk'])
-        serializer = CommentsListSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return self.queryset.filter(ad_id=self.kwargs['ad_pk'])
 
     def create(self, request, *args, **kwargs):
-        ad = Ad.objects.filter(id=kwargs['pk']).first()
-        request.data['current_ad'] = ad
-        request.data['ad_id'] = ad.id
-
-        serializer = CommentCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data)
-        x=1
-        pass
-#
-#
-# class CommentsViewSet(viewsets.ViewSet):
-#     def list(self, request, *args, **kwargs):
-#         queryset = Comment.objects.all().filter(ad=kwargs['pk'])
-#         serializer = CommentsListSerializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#     def create(self, request, *args, **kwargs):
-#         request.data['ad_id'] = kwargs['pk']
-#         request.data['author_id'] = request.user.id
-#         request.data['author_first_name'] = request.user.first_name
-#         request.data['author_last_name'] = request.user.last_name
-#         request.data['image'] = request.user.image
-#
-#
-#
-#         serializer = CommentCreateSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#
-#         return Response(serializer.data)
+        request.data['author_id'] = int(self.request.user.id)
+        request.data['ad_id'] = int(self.kwargs['ad_pk'])
+        return super().create(request, *args, **kwargs)
