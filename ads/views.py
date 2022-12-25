@@ -1,7 +1,9 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework import permissions, pagination, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from ads.filters import AdTitleFilter
 from ads.models import Comment
 from ads.permissions import AdOwnerPermission
 from ads.serializers import AdvertisementsListSerializer, AdvertisementsRetrieveSerializer, CommentsListSerializer, \
@@ -12,6 +14,10 @@ from ads.serializers import AdvertisementsListSerializer, AdvertisementsRetrieve
 
 class AdvertisementViewSet(viewsets.ModelViewSet):
     queryset = Ad.objects.select_related('author').all()
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = AdTitleFilter
+
+
     serializer_classes = {
         'list': AdvertisementsListSerializer,
         'retrieve': AdvertisementsRetrieveSerializer,

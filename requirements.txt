@@ -6,3 +6,4 @@ python-dotenv==0.21.0
 pillow==9.3.0
 djangorestframework_simplejwt==4.8.0
 djoser==2.1.0
+django-filter=22.1
