@@ -40,11 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # libs
-    'rest_framework',
     'corsheaders',
+    'rest_framework',
     'rest_framework_simplejwt',
     'djoser',
     'django_filters',
+    'drf_spectacular',
     # project apps
     'redoc',
     'users',
@@ -150,7 +151,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
 }
 
 DJOSER = {
@@ -180,4 +182,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer'),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'SkyMarketAPI',
+    'DESCRIPTION': 'SkyMarket Course Work 6',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
