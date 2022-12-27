@@ -25,7 +25,7 @@ users_router = SimpleRouter()
 users_router.register("users", UserViewSet, basename="users")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
 
     #users
     path('api/', include(users_router.urls)),
