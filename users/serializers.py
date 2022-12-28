@@ -13,6 +13,14 @@ class UserSerializer(DjoserUserSerializer):
 
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
+    image = serializers.ImageField(required=False)
+    password = serializers.CharField(write_only=True)
+    first_name = serializers.CharField(required=False, default='')
+    last_name = serializers.CharField(required=False, default='')
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone', 'id', 'email', 'image']
+        fields = ['first_name', 'last_name', 'phone', 'id', 'email', 'image', 'password']
+
+    def validate(self, attrs):
+        x = 1
+        return super().validate(attrs)
