@@ -2,6 +2,6 @@ venv
 .env
 __pycache__
 .idea
-migrations/
 django_media
 django_static
+__pycache__
